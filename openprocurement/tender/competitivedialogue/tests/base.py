@@ -108,10 +108,13 @@ class BaseCompetitiveDialogWebTest(BaseTenderWebTest):
 
     def setUp(self):
         super(BaseTenderWebTest, self).setUp()
-        if self.initial_auth:
-            self.app.authorization = self.initial_auth
-        else:
-            self.app.authorization = ('Basic', ('broker', ''))
+        if self.docservice:
+            self.setUpDS()
+
+    def tearDown(self):
+        if self.docservice:
+            self.setUpDS()
+        self.couchdb_server.delete(self.db_name)
 
     def check_chronograph(self):
         authorization = self.app.authorization
