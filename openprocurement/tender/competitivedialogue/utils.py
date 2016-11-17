@@ -288,7 +288,7 @@ def stage2_bid_post(self):
         self.request.errors.status = 403
         return
     tender.modified = False
-    api_set_ownership(bid, self.request)
+    acc = api_set_ownership(bid, self.request)
     tender.bids.append(bid)
     if save_tender(self.request):
         self.LOGGER.info('Created tender bid {}'.format(bid.id),
@@ -297,9 +297,4 @@ def stage2_bid_post(self):
         self.request.response.status = 201
         self.request.response.headers['Location'] = self.request.route_url('Tender Bids', tender_id=tender.id,
                                                                            bid_id=bid['id'])
-        return {
-            'data': bid.serialize('view'),
-            'access': {
-                'token': bid.owner_token
-            }
-        }
+        return {'data': bid.serialize('view'), 'access': acc}
