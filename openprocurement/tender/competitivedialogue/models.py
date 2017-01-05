@@ -419,6 +419,7 @@ class Tender(BaseTenderEU):
     features = ListType(ModelType(Feature), validators=[validate_features_uniq])
 
     create_accreditation = 'c'
+    ownerchange_accreditation = 3
 
     class Options:
         roles = stage_2_roles.copy()
@@ -455,6 +456,7 @@ class Tender(BaseTenderUA):
     features = ListType(ModelType(Feature), validators=[validate_features_uniq])
 
     create_accreditation = 'c'
+    ownerchange_accreditation = 3
 
     class Options:
         roles = stage_2_roles.copy()
