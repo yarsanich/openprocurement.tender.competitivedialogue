@@ -158,6 +158,8 @@ class CompetitiveDialogEUComplaintResourceTest(BaseCompetitiveDialogEUContentWeb
         complaint = response.json['data']
         owner_token = response.json['access']['token']
         self.assertEqual(complaint['author']['name'], author['name'])
+        self.assertNotIn('transfer_token', complaint)
+        self.assertIn('transfer', response.json['access'])
         self.assertIn('id', complaint)
         self.assertIn(complaint['id'], response.headers['Location'])
 
@@ -214,6 +216,8 @@ class CompetitiveDialogEUComplaintResourceTest(BaseCompetitiveDialogEUContentWeb
                                                 'author': author}})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
+        self.assertIn('transfer', response.json['access'])
         complaint = response.json['data']
         owner_token = response.json['access']['token']
 
@@ -230,6 +234,7 @@ class CompetitiveDialogEUComplaintResourceTest(BaseCompetitiveDialogEUContentWeb
                                        {"data": {"title": "claim title",}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.json['data']["title"], "claim title")
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.patch_json('/tenders/{}/complaints/{}?acc_token={}'.format(self.tender_id, complaint['id'],
                                                                                        owner_token),
@@ -398,6 +403,7 @@ class CompetitiveDialogEUComplaintResourceTest(BaseCompetitiveDialogEUContentWeb
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'], complaint)
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.get('/tenders/{}/complaints/some_id'.format(self.tender_id), status=404)
         self.assertEqual(response.status, '404 Not Found')
@@ -1032,6 +1038,8 @@ class CompetitiveDialogUAComplaintResourceTest(BaseCompetitiveDialogUAContentWeb
         self.assertEqual(complaint['author']['name'], author['name'])
         self.assertIn('id', complaint)
         self.assertIn(complaint['id'], response.headers['Location'])
+        self.assertNotIn('transfer_token', complaint)
+        self.assertIn('transfer', response.json['access'])
 
         response = self.app.patch_json('/tenders/{}/complaints/{}?acc_token={}'.format(self.tender_id, complaint['id'],
                                                                                        self.tender_token),
@@ -1088,6 +1096,8 @@ class CompetitiveDialogUAComplaintResourceTest(BaseCompetitiveDialogUAContentWeb
                                                 'author': author}})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
+        self.assertIn('transfer', response.json['access'])
         complaint = response.json['data']
         owner_token = response.json['access']['token']
 
@@ -1104,6 +1114,7 @@ class CompetitiveDialogUAComplaintResourceTest(BaseCompetitiveDialogUAContentWeb
                                        {"data": {"title": "claim title"}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.json['data']["title"], "claim title")
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.patch_json('/tenders/{}/complaints/{}?acc_token={}'.format(self.tender_id, complaint['id'],
                                                                                        owner_token),
@@ -1271,7 +1282,7 @@ class CompetitiveDialogUAComplaintResourceTest(BaseCompetitiveDialogUAContentWeb
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'], complaint)
-
+        self.assertNotIn('transfer_token', response.json['data'])
         response = self.app.get('/tenders/{}/complaints/some_id'.format(self.tender_id), status=404)
         self.assertEqual(response.status, '404 Not Found')
         self.assertEqual(response.content_type, 'application/json')
@@ -1331,6 +1342,8 @@ class CompetitiveDialogUALotAwardComplaintResourceTest(BaseCompetitiveDialogUACo
         self.assertEqual(response.content_type, 'application/json')
         complaint = response.json['data']
         owner_token = response.json['access']['token']
+        self.assertNotIn('transfer_token', complaint)
+        self.assertIn('transfer', response.json['access'])
         self.assertEqual(complaint['author']['name'], author['name'])
         self.assertIn('id', complaint)
         self.assertIn(complaint['id'], response.headers['Location'])
@@ -1355,6 +1368,7 @@ class CompetitiveDialogUALotAwardComplaintResourceTest(BaseCompetitiveDialogUACo
         self.assertEqual(response.json['data']["status"], "answered")
         self.assertEqual(response.json['data']["resolutionType"], "invalid")
         self.assertEqual(response.json['data']["resolution"], "spam 100% " * 3)
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.patch_json('/tenders/{}/complaints/{}?acc_token={}'.format(self.tender_id, complaint['id'],
                                                                                        owner_token),

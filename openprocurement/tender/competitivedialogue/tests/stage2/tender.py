@@ -329,6 +329,8 @@ class CompetitiveDialogStage2EUResourceTest(BaseCompetitiveDialogEUStage2WebTest
             response = self.app.post_json('/tenders', {'data': test_tender_stage2_data_eu})
             self.assertEqual(response.status, '201 Created')
             self.assertEqual(response.content_type, 'application/json')
+            self.assertIn('transfer', response.json['access'])
+            self.assertNotIn('transfer_token', response.json['data'])
             self.set_tender_status(response.json['data'], response.json['access']['token'], 'draft.stage2')
             response = self.set_tender_status(response.json['data'], response.json['access']['token'],
                                               'active.tendering')
@@ -596,6 +598,8 @@ class CompetitiveDialogStage2EUResourceTest(BaseCompetitiveDialogEUStage2WebTest
         response = self.app.post_json('/tenders', {"data": test_tender_stage2_data_eu})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', response.json['data'])
         tender = response.json['data']
         tender_set = set(tender)
         if 'procurementMethodDetails' in tender_set:
@@ -651,6 +655,7 @@ class CompetitiveDialogStage2EUResourceTest(BaseCompetitiveDialogEUStage2WebTest
         response = self.app.get('/tenders/{}'.format(tender['id']))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
         self.assertEqual(response.json['data'], tender)
 
         response = self.app.get('/tenders/{}?opt_jsonp=callback'.format(tender['id']))
@@ -871,7 +876,7 @@ class CompetitiveDialogStage2EUResourceTest(BaseCompetitiveDialogEUStage2WebTest
                                                                                      test_access_token_stage1),
                                        {'data': ''})
         self.assertEqual(response.status, '200 OK')
-
+        self.assertNotIn('transfer_token', response.json['data'])
         owner_token = response.json['access']['token']
 
         # switch to active.tendering
@@ -1494,7 +1499,10 @@ class TenderStage2UAResourceTest(BaseCompetitiveDialogUAStage2WebTest):
             response = self.app.post_json('/tenders', {'data': test_tender_stage2_data_eu})
             self.assertEqual(response.status, '201 Created')
             self.assertEqual(response.content_type, 'application/json')
+            self.assertIn('transfer', response.json['access'])
+            self.assertNotIn('transfer_token', response.json['data'])
             self.set_tender_status(response.json['data'], response.json['access']['token'], 'draft.stage2')
+
             response = self.set_tender_status(response.json['data'], response.json['access']['token'],
                                               'active.tendering')
             tenders.append(response.json['data'])
@@ -1744,6 +1752,8 @@ class TenderStage2UAResourceTest(BaseCompetitiveDialogUAStage2WebTest):
         response = self.app.post_json('/tenders', {"data": test_tender_stage2_data_ua})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', response.json['data'])
         tender = response.json['data']
         tender_set = set(tender)
         if 'procurementMethodDetails' in tender_set:
@@ -1799,6 +1809,7 @@ class TenderStage2UAResourceTest(BaseCompetitiveDialogUAStage2WebTest):
         response = self.app.get('/tenders/{}'.format(tender['id']))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
         self.assertEqual(response.json['data'], tender)
 
         response = self.app.get('/tenders/{}?opt_jsonp=callback'.format(tender['id']))
@@ -2031,6 +2042,7 @@ class TenderStage2UAResourceTest(BaseCompetitiveDialogUAStage2WebTest):
                                            "endDate": response.json['data']['tenderPeriod']['endDate']}}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.patch_json('/tenders/{}?acc_token={}'.format(tender['id'], owner_token),
                                        {'data': {'procuringEntity': {'kind': 'defense'}}})
