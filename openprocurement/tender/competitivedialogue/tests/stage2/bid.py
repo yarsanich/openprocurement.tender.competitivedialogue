@@ -213,6 +213,8 @@ class TenderStage2EUBidResourceTest(BaseCompetitiveDialogEUStage2ContentWebTest)
         self.assertEqual(bid['tenderers'][0]['name'], test_bids[0]['tenderers'][0]['name'])
         self.assertIn('id', bid)
         self.assertIn(bid['id'], response.headers['Location'])
+        self.assertNotIn('transfer_token', bid)
+        self.assertIn('transfer', response.json['access'])
 
         for status in ('active', 'unsuccessful', 'deleted', 'invalid'):
             response = self.app.post_json('/tenders/{}/bids'.format(self.tender_id),
@@ -240,6 +242,8 @@ class TenderStage2EUBidResourceTest(BaseCompetitiveDialogEUStage2ContentWebTest)
         self.assertEqual(response.content_type, 'application/json')
         bid = response.json['data']
         bid_token = response.json['access']['token']
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', bid)
 
         response = self.app.patch_json('/tenders/{}/bids/{}?acc_token={}'.format(self.tender_id, bid['id'], bid_token),
                                        {"data": {"value": {"amount": 600}}},
@@ -341,6 +345,7 @@ class TenderStage2EUBidResourceTest(BaseCompetitiveDialogEUStage2ContentWebTest)
         response = self.app.get('/tenders/{}/bids/{}?acc_token={}'.format(self.tender_id, bid['id'], bid_token))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
         self.assertEqual(response.json['data'], bid)
 
         # switch to active.pre-qualification
@@ -2935,6 +2940,8 @@ class TenderStage2UABidResourceTest(BaseCompetitiveDialogUAStage2ContentWebTest)
         self.assertEqual(bid['tenderers'][0]['name'], test_bids[0]['tenderers'][0]['name'])
         self.assertIn('id', bid)
         self.assertIn(bid['id'], response.headers['Location'])
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', bid)
 
         # set tender period in future
         data = deepcopy(test_tender_stage2_data_ua)
@@ -2975,6 +2982,8 @@ class TenderStage2UABidResourceTest(BaseCompetitiveDialogUAStage2ContentWebTest)
         self.assertEqual(response.content_type, 'application/json')
         bid = response.json['data']
         bid_token = response.json['access']['token']
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', bid)
 
         response = self.app.patch_json('/tenders/{}/bids/{}?acc_token={}'.format(self.tender_id, bid['id'], bid_token),
                                        {'data': {'value': {'amount': 600}}},
@@ -3061,6 +3070,7 @@ class TenderStage2UABidResourceTest(BaseCompetitiveDialogUAStage2ContentWebTest)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'], bid)
+        self.assertNotIn('transfer_token', response.json['data'])
 
         self.set_status('active.qualification')
 
@@ -3269,6 +3279,8 @@ class TenderStage2UABidResourceTest(BaseCompetitiveDialogUAStage2ContentWebTest)
                                                 "value": {"amount": 500}}})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
+        self.assertIn('transfer', response.json['access'])
 
         # self.set_status('active.auction')
         self.set_status('active.auction', {"auctionPeriod": {"startDate": None}, 'status': 'active.tendering'})

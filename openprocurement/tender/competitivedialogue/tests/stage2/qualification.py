@@ -911,6 +911,8 @@ class TenderStage2EUQualificationComplaintResourceTest(BaseCompetitiveDialogEUSt
         self.assertEqual(complaint['author']['name'], self.bids[0]['tenderers'][0]['name'])
         self.assertIn('id', complaint)
         self.assertIn(complaint['id'], response.headers['Location'])
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', response.json['data'])
 
         self.set_status('unsuccessful')
 
@@ -949,6 +951,7 @@ class TenderStage2EUQualificationComplaintResourceTest(BaseCompetitiveDialogEUSt
             {'data': {'title': 'claim title'}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.json['data']['title'], 'claim title')
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.patch_json('/tenders/{}/qualifications/{}/complaints/{}?acc_token={}'.format(
             self.tender_id, self.qualification_id, complaint['id'], owner_token),
@@ -1092,6 +1095,7 @@ class TenderStage2EUQualificationComplaintResourceTest(BaseCompetitiveDialogEUSt
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'], complaint)
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.get('/tenders/{}/qualifications/{}/complaints/some_id'.format(
             self.tender_id, self.qualification_id),
@@ -1168,6 +1172,8 @@ class TenderStage2EULotQualificationComplaintResourceTest(TenderStage2EUQualific
         self.assertEqual(complaint['author']['name'], self.initial_bids[0]['tenderers'][0]['name'])
         self.assertIn('id', complaint)
         self.assertIn(complaint['id'], response.headers['Location'])
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', complaint)
 
         self.set_status('unsuccessful')
 
@@ -1192,6 +1198,8 @@ class TenderStage2EULotQualificationComplaintResourceTest(TenderStage2EUQualific
         self.assertEqual(response.content_type, 'application/json')
         complaint = response.json['data']
         owner_token = response.json['access']['token']
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', complaint)
 
         response = self.app.patch_json('/tenders/{}/qualifications/{}/complaints/{}?acc_token={}'.format(
             self.tender_id, self.qualification_id, complaint['id'], owner_token),
@@ -1294,6 +1302,7 @@ class TenderStage2EULotQualificationComplaintResourceTest(TenderStage2EUQualific
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'], complaint)
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.get('/tenders/{}/qualifications/{}/complaints/some_id'.format(
             self.tender_id, self.qualification_id), status=404)
@@ -1366,6 +1375,8 @@ class TenderStage2EU2LotQualificationComplaintResourceTest(TenderStage2EULotQual
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
         complaint = response.json['data']
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', complaint)
         self.assertEqual(complaint['author']['name'], self.initial_bids[0]['tenderers'][0]['name'])
         self.assertIn('id', complaint)
         self.assertIn(complaint['id'], response.headers['Location'])
@@ -1396,10 +1407,14 @@ class TenderStage2EU2LotQualificationComplaintResourceTest(TenderStage2EULotQual
         self.assertEqual(response.content_type, 'application/json')
         complaint = response.json['data']
         owner_token = response.json['access']['token']
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', complaint)
 
         response = self.app.patch_json('/tenders/{}/qualifications/{}/complaints/{}?acc_token={}'.format(
             self.tender_id, self.qualification_id, complaint['id'], owner_token),
             {'data': {'status': 'pending'}})
+
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.post_json('/tenders/{}/qualifications/{}/complaints?acc_token={}'.format(
             self.tender_id, self.qualification_id, self.initial_bids_tokens.values()[0]),

@@ -1185,6 +1185,8 @@ class TenderStage2EUAwardComplaintResourceTest(BaseCompetitiveDialogEUStage2Cont
 
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', response.json['data'])
         complaint = response.json['data']
         self.assertEqual(complaint['author']['name'], author['name'])
         self.assertIn('id', complaint)
@@ -1246,6 +1248,7 @@ class TenderStage2EUAwardComplaintResourceTest(BaseCompetitiveDialogEUStage2Cont
             {'data': {'title': 'claim title'}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.json['data']['title'], 'claim title')
+        self.assertNotIn('transfer_token', response.json['data'])
 
         # set complaints to status pending
         response = self.app.patch_json('/tenders/{}/awards/{}/complaints/{}?acc_token={}'.format(
@@ -1395,6 +1398,7 @@ class TenderStage2EUAwardComplaintResourceTest(BaseCompetitiveDialogEUStage2Cont
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'], complaint)
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.get('/tenders/{}/awards/{}/complaints/some_id'.format(self.tender_id, self.award_id),
                                 status=404)
@@ -3904,6 +3908,8 @@ class TenderStage2UAAwardComplaintResourceTest(BaseCompetitiveDialogUAStage2Cont
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
         complaint = response.json['data']
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', response.json['data'])
         self.assertEqual(complaint['author']['name'], author['name'])
         self.assertIn('id', complaint)
         self.assertIn(complaint['id'], response.headers['Location'])
@@ -3935,6 +3941,8 @@ class TenderStage2UAAwardComplaintResourceTest(BaseCompetitiveDialogUAStage2Cont
         self.assertEqual(response.content_type, 'application/json')
         complaint = response.json['data']
         owner_token = response.json['access']['token']
+        self.assertIn('transfer', response.json['access'])
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.patch_json('/tenders/{}/awards/{}/complaints/{}'.format(
             self.tender_id, self.award_id, complaint['id']), {'data': {'status': 'cancelled',
@@ -3956,6 +3964,7 @@ class TenderStage2UAAwardComplaintResourceTest(BaseCompetitiveDialogUAStage2Cont
             {'data': {'title': 'claim title',}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.json['data']['title'], 'claim title')
+        self.assertNotIn('transfer_token', response.json['data'])
 
         response = self.app.patch_json('/tenders/{}/awards/{}/complaints/{}?acc_token={}'.format(
             self.tender_id, self.award_id, complaint['id'], owner_token), {'data': {'status': 'pending'}})
@@ -4089,6 +4098,7 @@ class TenderStage2UAAwardComplaintResourceTest(BaseCompetitiveDialogUAStage2Cont
             self.tender_id, self.award_id, complaint['id']))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
+        self.assertNotIn('transfer_token', response.json['data'])
         self.assertEqual(response.json['data'], complaint)
 
         response = self.app.get('/tenders/{}/awards/{}/complaints/some_id'.format(self.tender_id, self.award_id),
