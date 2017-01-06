@@ -220,6 +220,8 @@ class CompetitiveDialogEUBidResourceTest(BaseCompetitiveDialogEUContentWebTest):
         self.assertEqual(bid['tenderers'][0]['name'], test_bids[0]['tenderers'][0]['name'])
         self.assertIn('id', bid)
         self.assertIn(bid['id'], response.headers['Location'])
+        self.assertNotIn('transfer_token', bid)
+        self.assertIn('transfer', response.json['access'])
 
         # Create bids in all possible statues
         for status in ('active', 'unsuccessful', 'deleted', 'invalid'):
@@ -322,6 +324,8 @@ class CompetitiveDialogEUBidResourceTest(BaseCompetitiveDialogEUContentWebTest):
         self.assertEqual(response.content_type, 'application/json')
         bid = response.json['data']
         bid_token = response.json['access']['token']
+        self.assertNotIn('transfer_token', bid)
+        self.assertIn('transfer', response.json['access'])
 
         # Update tenders[0].name, and check response fields
         response = self.app.patch_json('/tenders/{}/bids/{}?acc_token={}'.format(self.tender_id, bid['id'], bid_token),
@@ -338,6 +342,7 @@ class CompetitiveDialogEUBidResourceTest(BaseCompetitiveDialogEUContentWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data']['date'], bid['date'])
         self.assertEqual(response.json['data']['tenderers'][0]['name'], bid['tenderers'][0]['name'])
+        self.assertNotIn('transfer_token', bid)
 
         # Try update bidder amount, return Null
         response = self.app.patch_json('/tenders/{}/bids/{}?acc_token={}'.format(self.tender_id, bid['id'], bid_token),
@@ -404,6 +409,7 @@ class CompetitiveDialogEUBidResourceTest(BaseCompetitiveDialogEUContentWebTest):
         self.assertEqual(response.content_type, 'application/json')
         bid = response.json['data']
         bid_token = response.json['access']['token']
+        self.assertNotIn('transfer_token', bid)
 
         # Create another bidder
         bidder_data['identifier']['id'] = u"00037257"
